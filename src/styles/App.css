@@ -71,6 +71,31 @@
   font-weight: bold;
 }
 
+.middle-container{
+  color: rgb(55, 85, 215);
+  font-size: medium;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+}
+
+.collection-link-box{
+  display: flex;
+  background: -webkit-linear-gradient(left, #60c657, #35aee2);
+  background-size: 200% 200%;
+  animation: gradient-animation 4s ease infinite;
+  justify-content: center;
+  height: 3rem;
+  align-content: center;
+  align-items: center;
+  border-radius: 5px;
+}
+.collection-btn{
+  padding: 1rem;
+  color: white;
+  text-decoration: none;
+}
+
 .footer-container {
   display: flex;
   justify-content: center;
