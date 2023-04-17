@@ -10,12 +10,13 @@ const TWITTER_HANDLE = 'shivamSspirit';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 
-const CONTRACT_ADDRESS = '0x106ea05abd2c98265Faff7489527E5828b3295BE'
+const CONTRACT_ADDRESS = '0xbde964B6c912d348EC4e6865c1257Fc4968e7418'
 
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [collectionLink, setCollectionLink] = useState("");
   const [loader, setLoader] = useState(false);
+  console.log("coll",collectionLink)
 
 
   const checkIfWalletIsConnected = async () => {
@@ -59,8 +60,6 @@ const App = () => {
       console.log("Connected", accounts[0]);
       setCurrentAccount(accounts[0]);
 
-      setupEventListener()
-
     } catch (error) {
       console.log(error);
     }
@@ -78,9 +77,21 @@ const App = () => {
     checkIfWalletIsConnected();
   }, [])
 
+  
+  const onNewEpicNFTMinted = () => {
+    let nftPortalContract;
+      if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();     
+      nftPortalContract = new ethers.Contract(CONTRACT_ADDRESS, myEpicNft.abi, signer);
+      nftPortalContract.on("NewEpicNFTMinted", (from, tokenId)=>{
+        console.log("NewEpicNFTMinted", from, tokenId);
+        setCollectionLink(`https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}`)
+      });
+    }
+           };
+  
   const askContractToMintNft = async () => {
-    const CONTRACT_ADDRESS = "0x32A9B4AB617F3dCceF2803072f74d2A8BACD33a5";
-
     try {
       const { ethereum } = window;
 
@@ -95,8 +106,9 @@ const App = () => {
 
         console.log("Mining...please wait.")
         await nftTxn.wait();
-        setLoader(false)
 
+        onNewEpicNFTMinted()
+        setLoader(false)
         console.log(`Mined, see transaction: https://goerli.etherscan.io/tx/${nftTxn.hash}`);
 
       } else {
@@ -107,31 +119,6 @@ const App = () => {
     }
   }
 
-
-  const setupEventListener = async () => {
-    try {
-      const { ethereum } = window;
-
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, myEpicNft.abi, signer);
-
-        connectedContract.on("NewEpicNFTMinted", (from, tokenId) => {
-          console.log(from, tokenId.toNumber())
-          setCollectionLink(`https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}`)
-          //  alert(`Hey there! We've minted your NFT and sent it to your wallet. It may be blank right now. It can take a max of 10 min to show up on OpenSea. Here's the link: https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}`)
-        });
-
-        console.log("Setup event listener!")
-
-      } else {
-        console.log("Ethereum object doesn't exist!");
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
   return (
     <div className="App">
       <div className="container">
