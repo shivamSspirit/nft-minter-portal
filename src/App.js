@@ -16,7 +16,7 @@ const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [collectionLink, setCollectionLink] = useState("");
   const [loader, setLoader] = useState(false);
-  console.log("coll",collectionLink)
+  console.log("coll", collectionLink)
 
 
   const checkIfWalletIsConnected = async () => {
@@ -45,15 +45,13 @@ const App = () => {
         alert("Get MetaMask!");
         return;
       }
-
       let chainId = await ethereum.request({ method: 'eth_chainId' });
-      console.log("Connected to chain" + chainId);
-
-      // String, hex code of the chainId of the goerli test netw = "0x5";
       const goerliChainId = "0x5";
       if (chainId !== goerliChainId) {
-        alert("You are not connected to the goerli Test Network!");
-        return;
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: goerliChainId }],
+        });
       }
 
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
@@ -77,20 +75,20 @@ const App = () => {
     checkIfWalletIsConnected();
   }, [])
 
-  
+
   const onNewEpicNFTMinted = () => {
     let nftPortalContract;
-      if (window.ethereum) {
+    if (window.ethereum) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();     
+      const signer = provider.getSigner();
       nftPortalContract = new ethers.Contract(CONTRACT_ADDRESS, myEpicNft.abi, signer);
-      nftPortalContract.on("NewEpicNFTMinted", (from, tokenId)=>{
+      nftPortalContract.on("NewEpicNFTMinted", (from, tokenId) => {
         console.log("NewEpicNFTMinted", from, tokenId);
         setCollectionLink(`https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}`)
       });
     }
-           };
-  
+  };
+
   const askContractToMintNft = async () => {
     try {
       const { ethereum } = window;
